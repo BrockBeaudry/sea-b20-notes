@@ -4,13 +4,14 @@ var mongoose = require('mongoose');
 var http = require('http');
 var app = express();
 
-mongoose.connect(process.env.MONGO_URL || 'mongodb://localhost/notes-development');
+var databaseUri = process.env.MONGOLAB_URI ||process.env.MONGOHQ_URL ||
+        process.env.MONGO_URL || 'mongodb://localhost/notes-development';
+
+mongoose.connect(databaseUri || 'mongodb://localhost/notes-development');
 
 app.use(bodyparser.json());
 require('./routes/note-routes')(app);
 
-var server = http.createServer(app);
-
-server.listen(3000, function() {
-  console.log('server running on port 3000');
+var server = app.listen(process.env.PORT || 3000, function() {
+    console.log('Listening on port: %d', server.address().port);
 });
