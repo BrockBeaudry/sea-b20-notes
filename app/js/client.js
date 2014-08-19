@@ -5,7 +5,6 @@ var Note = require('./notes/models/note');
 var note = new Note();
 note.set('noteBody', 'wow such note, so words');
 
-console.log(note.get('noteBody'));
 console.log(note);
 
 // Not a real pattern; use listeners
