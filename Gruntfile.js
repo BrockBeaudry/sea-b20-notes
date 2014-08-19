@@ -1,49 +1,41 @@
 'use strict';
+
 module.exports = function(grunt) {
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
 
-    clean: {
-      data: ['db'],
-    },
-
-    jshint: {
-      all: ['Gruntfile.js', 'routes/*.js', 'models/*.js' , 'test/**/*.js'],
-      options: {
-        jshintrc: true,
-        globals: {
-          console: true,
-          module: true
-        }
-      },
-    },
-
-    connect: {
-        options: {
-            port: process.env.PORT || 3000,
-          
+        clean: {
+            dev: {
+                src: ['build/']
+            },
         },
-        all: {},
-    },
 
-    simplemocha: {
-      options: {
-        globals: ['expect'],
-        timeout: 3000,
-        ignoreLeaks: false,
-        ui: 'bdd',
-        reporter: 'tap'
-    },
+        copy: {
+            dev: {
+                expand: true,
+                cwd: 'app/',
+                src: ['*.html', '*.css'],
+                dest: 'build/',
+                filter: 'isFile'
+            }
+        },
 
-      all: { src: ['test/mocha/*.js'] }
-    },
+        browserify: {
+            dev: {
+                options: {
+                    transform: ['debowerify'],
+                    debug: true,
+                },
+                src: ['app/js/**/*.js'],
+                dest: 'build/bundle.js'
+            },
+        },
 
-  });
- 
-  require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
- 
-  grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('test', ['simplemocha']);  
+    });
 
+    grunt.registerTask('build:dev', ['clean:dev', 'browserify:dev', 'copy:dev']);
 };
