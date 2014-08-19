@@ -11,6 +11,10 @@ var Note = Backbone.Model.extend({
 
     initialize: function() {
         console.log('Note initialized.');
+        
+        this.on('change:noteBody', function(model) {
+            console.log('Updated noteBody: %s.', model.get('noteBody'));
+        });
     },
 
     defaults: {
