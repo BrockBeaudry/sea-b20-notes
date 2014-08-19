@@ -1,20 +1,31 @@
-var express = require('express');
-var http = require('http');
+'use strict';
 
+var express = require('express');
+var bodyparser = require('body-parser');
+var mongoose = require('mongoose');
+var http = require('http');
 var app = express();
 
-app.get('/echo/:input1/:input2', function(req, res) {
-  res.send({"input1" : req.params.input1, "input2" : req.params.input2});
-});
+var databaseUri = process.env.MONGOLAB_URI ||process.env.MONGOHQ_URL ||
+        process.env.MONGO_URL || 'mongodb://localhost/notes-development';
 
-app.get('/*', function(req, res) {
-  res.status(404).send('not found');
-});
+mongoose.connect(databaseUri || 'mongodb://localhost/notes-development');
 
-app.use(express.static(__dirname + '/static'));
+// app.use(express.static(__dirname + '/static'));
 
-var server = http.createServer(app);
+app.use(express.static(__dirname + (process.env.STATIC_DIR || '/build')));
 
-server.listen(3000, function() {
-  console.log('server running on port 3000');
+// can set dir as environment variable instead of branching
+// if(process.env.ENVIRONMENT === 'production') {
+//     app.use(express.static(__dirname + '/dist'));
+// } else {
+//     app.use(express.static(__dirname + '/build'));
+// }
+
+app.use(bodyparser.json());
+require('./routes/note-routes')(app);
+require('./routes/index')(app);
+
+var server = app.listen(process.env.PORT || 3000, function() {
+    console.log('Listening on port: %d', server.address().port);
 });
